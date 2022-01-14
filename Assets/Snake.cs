@@ -8,7 +8,8 @@ public class Snake : MonoBehaviour
   public Transform segmentPrefab;
   public int initialSize = 4;
 
-  private void Start()
+ 
+    private void Start()
   {
     ResetState();
   }
