@@ -9,6 +9,7 @@ namespace GameNetwork
     {
         private MessageReceiver receiver;
         private MessageSender sender;
+        private GameStateHandler gameStateHandler = new GameStateHandler();
 
         private Server() { }
 
@@ -49,6 +50,9 @@ namespace GameNetwork
                     body = "From server"
                 };
                 string json = JsonConvert.SerializeObject(messsage);
+
+                GameState gameState = gameStateHandler.getGameState();
+
                 sender.SendMessage(json);
             }
             catch (Exception e)
@@ -68,7 +72,9 @@ namespace GameNetwork
 
                 Console.WriteLine($"Received: {otherPlayerJson}");
 
-                // ServerLogic.UpdatePlayerState(otherPlayerJson);
+                // Parse json into PlayerState obj
+                // PlayerState playerState = new PlayerState();
+                // gameStateHandler.updateStates(playerState);
             }
             catch (Exception e)
             {
