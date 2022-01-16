@@ -20,12 +20,18 @@ public class NetworkSender : MonoBehaviour
         Vector3 pos = this.transform.position;
         try
         {
-            string json = JsonUtility.ToJson(new PlayerState(playerInput.ID, pos));
-            sender.SendMessage(json);
+            string playerState = JsonUtility.ToJson(new PlayerState(playerInput.ID, pos));
+            BroadcastMessage message = new BroadcastMessage { 
+                dest = BroadcastMessageDestination.Server,
+                body = playerState,
+            };
+
+            string jsonMsg = JsonUtility.ToJson(message);
+            sender.SendMessage(jsonMsg);
         }
-        catch (System.Exception)
+        catch (System.Exception e)
         {
-            throw;
+            Debug.LogError(e);
         }
     }
 }
