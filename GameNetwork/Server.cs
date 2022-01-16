@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,8 +29,7 @@ namespace GameNetwork
         }
 
         private async void OnSend()
-        {
-
+        { 
             int IntervalTime = 1000;
             while (true)
             {
@@ -46,8 +45,8 @@ namespace GameNetwork
                 // ServerState.getState() -> broadcast to game clients
                 var messsage = new BroadcastMessage
                 {
-                    dest = BroadcastMessageDestination.Server,
-                    body = ""
+                    dest = BroadcastMessageDestination.Player,
+                    body = "From server"
                 };
                 string json = JsonConvert.SerializeObject(messsage);
                 sender.SendMessage(json);
@@ -64,7 +63,7 @@ namespace GameNetwork
             {
                 var message = JsonConvert.DeserializeObject<BroadcastMessage>(otherPlayerJson);
 
-                var isToServer = message.dest == BroadcastMessageDestination.Server;
+                bool isToServer = message.dest == BroadcastMessageDestination.Server;
                 if (isToServer == false) return;
 
                 Console.WriteLine($"Received: {otherPlayerJson}");

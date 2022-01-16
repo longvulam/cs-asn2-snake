@@ -2,8 +2,7 @@
 using System.Threading;
 using UnityEngine;
 
-public class NetworkController : MonoBehaviour
-{
+public class NetworkController : MonoBehaviour {
 
     public Snake player;
 
@@ -11,8 +10,7 @@ public class NetworkController : MonoBehaviour
     private const int Port = 11000;
     private MessageReceiver receiver;
 
-    private void Start()
-    {
+    private void Start() {
         receiver = new MessageReceiver(IpAddress, Port);
         receiver.OnReceivedEvent += UpdatePlayer;
 
@@ -21,20 +19,19 @@ public class NetworkController : MonoBehaviour
 
     }
 
-    private void UpdatePlayer(string otherPlayerJson)
-    {
-        Debug.Log($"otherPlayerJson: {otherPlayerJson}");
-        try
-        {
-            PlayerState state = JsonUtility.FromJson<PlayerState>(otherPlayerJson);
-            if (player.ID.ToString() != state.Id)
-            {
-                Debug.Log($"ID: {state.Id}");
-                Debug.Log($"Position: {state.position}");
-            }
-        }
-        catch (System.Exception e)
-        {
+    private void UpdatePlayer(string otherPlayerJson) {
+        try {
+            BroadcastMessage message = JsonUtility.FromJson<BroadcastMessage>(otherPlayerJson);
+
+            bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
+            if (isToPlayer == false) return;
+            //if (player.ID.ToString() != state.Id) {
+
+            //}
+
+            Debug.Log($"Received: {otherPlayerJson}");
+            //Debug.Log($"Message: {message.body}");
+        } catch (System.Exception e) {
             Debug.LogError($"{e}");
         }
     }

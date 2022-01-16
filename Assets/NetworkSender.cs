@@ -17,8 +17,21 @@ public class NetworkSender : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 pos =  this.transform.position;
-        string json = JsonUtility.ToJson(new PlayerState(playerInput.ID, pos));
-        sender.SendMessage(json);
+        Vector3 pos = this.transform.position;
+        try
+        {
+            string playerState = JsonUtility.ToJson(new PlayerState(playerInput.ID, pos));
+            BroadcastMessage message = new BroadcastMessage { 
+                dest = BroadcastMessageDestination.Server,
+                body = playerState,
+            };
+
+            string jsonMsg = JsonUtility.ToJson(message);
+            sender.SendMessage(jsonMsg);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 }

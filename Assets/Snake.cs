@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Snake : MonoBehaviour
 {
@@ -98,4 +99,11 @@ public class Snake : MonoBehaviour
             ResetState();
         }
     }
+
+    public void GoToMainMenu()
+    {
+      SceneManager.LoadScene("MainMenu");
+    }
+
+
 }

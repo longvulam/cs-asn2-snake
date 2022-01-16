@@ -61,7 +61,7 @@ namespace GameNetwork
                                             SocketOptionName.AddMembership,
                                             mcastOption);
 
-                byte[] bytes = new byte[100];
+                byte[] bytes = new byte[120];
                 int receivedBytes = 0;
                 EndPoint groupEP = new IPEndPoint(mcastAddress, mcastPort);
                 EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
