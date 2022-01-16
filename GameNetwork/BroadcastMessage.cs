@@ -1,6 +1,6 @@
 ﻿namespace GameNetwork
 {
-    public  class BroadcastMessage
+    public class BroadcastMessage
     {
         public BroadcastMessageDestination dest;
         public string body;

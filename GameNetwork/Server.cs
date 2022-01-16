@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,8 +29,7 @@ namespace GameNetwork
         }
 
         private async void OnSend()
-        {
-
+        { 
             int IntervalTime = 1000;
             while (true)
             {
