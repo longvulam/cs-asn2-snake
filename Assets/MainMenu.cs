@@ -14,7 +14,7 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("Snake");
+        SceneManager.LoadScene("Lobby");
         Debug.Log("Game Started");
 
     }

@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Snake.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 021302902dbb2b3488eea234e66e7e5e
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: 39b945490e05a51468520ef116a29605
+  - enabled: 1
+    path: Assets/Scenes/WaitingLobby.unity
+    guid: f9ab46521bbc435488a88bfeb41e707f
   m_configObjects: {}
