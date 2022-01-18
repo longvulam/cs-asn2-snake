@@ -19,9 +19,10 @@ public class NetworkController : MonoBehaviour {
 
     }
 
-    private void UpdatePlayer(string otherPlayerJson) {
+    private void UpdatePlayer(string commonGameState) // shared state coming from the server
+    {
         try {
-            BroadcastMessage message = JsonUtility.FromJson<BroadcastMessage>(otherPlayerJson);
+            BroadcastMessage message = JsonUtility.FromJson<BroadcastMessage>(commonGameState);
 
             bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
             if (isToPlayer == false) return;
@@ -29,7 +30,7 @@ public class NetworkController : MonoBehaviour {
 
             //}
 
-            Debug.Log($"Received: {otherPlayerJson}");
+            Debug.Log($"Received: {commonGameState}");
             //Debug.Log($"Message: {message.body}");
         } catch (System.Exception e) {
             Debug.LogError($"{e}");

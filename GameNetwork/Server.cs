@@ -9,7 +9,7 @@ namespace GameNetwork
     {
         private MessageReceiver receiver;
         private MessageSender sender;
-        private GameStateHandler gameStateHandler = new GameStateHandler();
+        private GameStateHandler gameStateHandler;
 
         private Server() { }
 
@@ -17,6 +17,7 @@ namespace GameNetwork
         {
             sender = new MessageSender(ipAddress, port);
             receiver = new MessageReceiver(ipAddress, port);
+            gameStateHandler = new GameStateHandler();
         }
 
         public void Start()
@@ -30,35 +31,36 @@ namespace GameNetwork
         }
 
         private async void OnSend()
-        { 
+        {
             int IntervalTime = 1000;
             while (true)
             {
                 await Task.Delay(IntervalTime);
-                BroadcastState();
+                try
+                {
+                    BroadcastState();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
         private void BroadcastState()
         {
-            try
+            GameState gameState = gameStateHandler.getGameState();
+            if (gameState.isRunnning == false) return;
+            
+            var body = JsonConvert.SerializeObject(gameState);
+            var messsage = new BroadcastMessage
             {
-                // ServerState.getState() -> broadcast to game clients
-                var messsage = new BroadcastMessage
-                {
-                    dest = BroadcastMessageDestination.Player,
-                    body = "From server"
-                };
-                string json = JsonConvert.SerializeObject(messsage);
+                dest = BroadcastMessageDestination.Player,
+                body = body
+            };
+            string json = JsonConvert.SerializeObject(messsage);
 
-                GameState gameState = gameStateHandler.getGameState();
-
-                sender.SendMessage(json);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            sender.SendMessage(json);
         }
 
         private void OnReceived(string otherPlayerJson)
@@ -73,8 +75,8 @@ namespace GameNetwork
                 Console.WriteLine($"Received: {otherPlayerJson}");
 
                 // Parse json into PlayerState obj
-                // PlayerState playerState = new PlayerState();
-                // gameStateHandler.updateStates(playerState);
+                var playerState = JsonConvert.DeserializeObject<PlayerState>(message.body);
+                gameStateHandler.updateStates(playerState);
             }
             catch (Exception e)
             {

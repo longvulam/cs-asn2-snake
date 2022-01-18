@@ -10,7 +10,6 @@ namespace GameNetwork
 
         static void Main(string[] args)
         {
-
             new Server(IpAddress, Port).Start();
         }
     }

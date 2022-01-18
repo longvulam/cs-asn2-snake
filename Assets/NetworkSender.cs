@@ -1,4 +1,5 @@
 using GameNetwork;
+using GameNetwork.Models;
 using UnityEngine;
 
 public class NetworkSender : MonoBehaviour
@@ -17,13 +18,15 @@ public class NetworkSender : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 pos = this.transform.position;
         try
         {
-            string playerState = JsonUtility.ToJson(new PlayerState(playerInput.ID, pos));
-            BroadcastMessage message = new BroadcastMessage { 
+            //Vector2 pos = this.transform.position;
+            string playerId = playerInput.ID.ToString();
+            var player = new PlayerState(playerId, Direction.Down);
+            BroadcastMessage message = new BroadcastMessage
+            {
                 dest = BroadcastMessageDestination.Server,
-                body = playerState,
+                body = JsonUtility.ToJson(player),
             };
 
             string jsonMsg = JsonUtility.ToJson(message);

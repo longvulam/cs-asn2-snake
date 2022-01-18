@@ -1,6 +1,6 @@
 using System;
 using GameNetwork.Models;
-using System.Collections;
+using System.Collections.Generic;
 
 internal class GameStateHandler
 {
@@ -25,9 +25,9 @@ internal class GameStateHandler
     {
         // Check if new or existing player id
         bool newPlayer = true;
-        foreach (PlayerState player in gameState.getPlayerStates())
+        foreach (PlayerState player in gameState.playerStates)
         {
-            if (player.getId().Equals(playerState.getId()))
+            if (player.id.Equals(playerState.id))
             {
                 newPlayer = false;
                 break;
@@ -36,50 +36,52 @@ internal class GameStateHandler
 
         if (newPlayer)
         {
-            if (gameState.getPlayerStates().Count < 4)
+            if (gameState.playerStates.Count < 4)
             {
                 gameState.addPlayerState(playerState);
             }
-        } else
+        }
+        else
         {
             // Move all players 1 square based on direction
-            foreach (PlayerState player in gameState.getPlayerStates())
+            foreach (PlayerState player in gameState.playerStates)
             {
-                player.setCoordinates(insertNewCoord(player));
-                player.getCoordinates().RemoveAt(player.getCoordinates().Count - 1);
+                player.coordinates = insertNewCoord(player);
+                player.coordinates.RemoveAt(player.coordinates.Count - 1);
             }
 
             // Copy players to new arraylist
-            ArrayList remainingPlayers = new ArrayList();
-            foreach (PlayerState player in gameState.getPlayerStates())
+            List<PlayerState> remainingPlayers = new List<PlayerState>();
+            foreach (PlayerState player in gameState.playerStates)
             {
                 remainingPlayers.Add(player);
             }
 
-            foreach (PlayerState player in gameState.getPlayerStates())
+            foreach (PlayerState player in gameState.playerStates)
             {
                 if (!remainingPlayers.Contains(player)) continue;
-                int playerX = ((Coordinate) player.getCoordinates()[0]).getX();
-                int playerY = ((Coordinate) player.getCoordinates()[0]).getY();
+                int playerX = ((Coordinate)player.coordinates[0]).x;
+                int playerY = ((Coordinate)player.coordinates[0]).y;
 
                 // Check if player is hitting the border
-                if (playerX == xMinBoundary || playerX == xMaxBoundary || playerY == yMinBoundary || playerY == yMaxBoundary) {
+                if (playerX == xMinBoundary || playerX == xMaxBoundary || playerY == yMinBoundary || playerY == yMaxBoundary)
+                {
                     remainingPlayers.Remove(player);
                     continue;
                 }
 
                 // Check if player is hitting another player
                 bool collideWithPlayer = false;
-                foreach (PlayerState p in gameState.getPlayerStates())
+                foreach (PlayerState p in gameState.playerStates)
                 {
-                    if (!remainingPlayers.Contains(player) || player.getId() == p.getId()) continue;
-                    foreach (Coordinate coord in p.getCoordinates())
+                    if (!remainingPlayers.Contains(player) || player.id == p.id) continue;
+                    foreach (Coordinate coord in p.coordinates)
                     {
-                        if (playerX == coord.getX() && playerY == coord.getY())
+                        if (playerX == coord.x && playerY == coord.y)
                         {
                             remainingPlayers.Remove(player);
                             // Check if head on head collision (if yes, remove other player as well)
-                            if (playerX == ((Coordinate) p.getCoordinates()[0]).getX() && playerY == ((Coordinate) p.getCoordinates()[0]).getY())
+                            if (playerX == ((Coordinate)p.coordinates[0]).x && playerY == ((Coordinate)p.coordinates[0]).y)
                             {
                                 remainingPlayers.Remove(p);
                             }
@@ -92,9 +94,10 @@ internal class GameStateHandler
                 if (collideWithPlayer) continue;
 
                 // Check if player is hitting foodPos
-                if (playerX == gameState.getFoodPos().getX() && playerY == gameState.getFoodPos().getY())
+                if (playerX == gameState.foodPos.x && playerY == gameState.foodPos.y)
                 {
-                    ((PlayerState) remainingPlayers[remainingPlayers.IndexOf(player)]).setCoordinates(insertNewCoord(player));
+                    PlayerState playerThatAte = remainingPlayers[remainingPlayers.IndexOf(player)];
+                    playerThatAte.coordinates = insertNewCoord(player);
                 }
             }
 
@@ -102,7 +105,7 @@ internal class GameStateHandler
             gameState.setPlayerStates(remainingPlayers);
 
             // Reset clean game state if 1 or less players
-            if (gameState.getPlayerStates().Count < 2)
+            if (gameState.playerStates.Count < 2)
             {
                 gameState = new GameState();
             }
@@ -112,19 +115,19 @@ internal class GameStateHandler
     {
         // Sets spawn points in order of TL, TR, BR, BL based on player #
         int playerNum = 1;
-        foreach (PlayerState player in gameState.getPlayerStates())
+        foreach (PlayerState player in gameState.playerStates)
         {
             player.generateInitialPos(playerNum);
             ++playerNum;
         }
         // Initialized foodPos
-        newFoodPos(gameState.getPlayerStates());
+        newFoodPos(gameState.playerStates);
+        gameState.isRunnning = true;
     }
 
-    private void newFoodPos(ArrayList playerStates)
+    private void newFoodPos(List<PlayerState> playerStates)
     {
-        int x;
-        int y;
+        int x; int y;
         Random rnd = new Random();
         // Continues to generate new xy until not on conflicting coordinate
         bool conflict;
@@ -135,21 +138,21 @@ internal class GameStateHandler
             y = rnd.Next(yMinBoundary + 1, yMaxBoundary);
             foreach (PlayerState player in playerStates)
             {
-                foreach (Coordinate coord in player.getCoordinates())
+                foreach (Coordinate coord in player.coordinates)
                 {
-                    if (coord.getX() == x && coord.getY() == y) conflict = true;
+                    if (coord.x == x && coord.y == y) conflict = true;
                 }
             }
         } while (conflict);
         gameState.setFoodPos(new Coordinate(x, y));
     }
 
-    private ArrayList insertNewCoord(PlayerState player)
+    private List<Coordinate> insertNewCoord(PlayerState player)
     {
-        ArrayList coordCopy = new ArrayList();
+        List<Coordinate> coordCopy = new List<Coordinate>();
         Coordinate newCoord = nextCoord(player);
         coordCopy.Add(newCoord);
-        foreach (Coordinate oldCoord in player.getCoordinates())
+        foreach (Coordinate oldCoord in player.coordinates)
         {
             coordCopy.Add(oldCoord);
         }
@@ -158,18 +161,19 @@ internal class GameStateHandler
 
     private Coordinate nextCoord(PlayerState player)
     {
-        int playerX = ((Coordinate)player.getCoordinates()[0]).getX();
-        int playerY = ((Coordinate)player.getCoordinates()[0]).getY();
+        Coordinate first = player.coordinates[0];
+        int playerX = first.x;
+        int playerY = first.y;
 
-        switch (player.getDirection())
+        switch (player.direction)
         {
-            case "Up":
+            case Direction.Up:
                 return new Coordinate(playerX, playerY + 1);
-            case "Right":
+            case Direction.Right:
                 return new Coordinate(playerX + 1, playerY);
-            case "Down":
+            case Direction.Down:
                 return new Coordinate(playerX, playerY - 1);
-            case "Left":
+            case Direction.Left:
                 return new Coordinate(playerX - 1, playerY);
             default:
                 Console.WriteLine("No player direction matched!");

@@ -1,20 +1,18 @@
-using System.Collections;
+using System.Collections.Generic;
+
 public class GameState
 {
-    private ArrayList playerStates;
-    private Coordinate foodPos;
+    public List<PlayerState> playerStates; // [{x, y}, ...]
+    public Coordinate foodPos;
+
+    public bool isRunnning { get; set; }
 
     public GameState()
     {
-        playerStates = new ArrayList();
+        playerStates = new List<PlayerState>();
     }
 
-    public ArrayList getPlayerStates()
-    {
-        return playerStates;
-    }
-
-    public void setPlayerStates(ArrayList playerStates)
+    public void setPlayerStates(List<PlayerState> playerStates)
     {
         this.playerStates = playerStates;
     }
@@ -22,11 +20,6 @@ public class GameState
     public void addPlayerState(PlayerState player)
     {
         playerStates.Add(player);
-    }
-
-    public Coordinate getFoodPos()
-    {
-        return foodPos;
     }
 
     public void setFoodPos(Coordinate foodPos)

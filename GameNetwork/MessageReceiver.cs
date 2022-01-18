@@ -16,15 +16,18 @@ namespace GameNetwork
         public event MessageReceivedHandler OnReceivedEvent;
 
         private IPAddress mcastAddress;
-        private int mcastPort;
         private Socket mcastSocket;
         private MulticastOption mcastOption;
+        private int mcastPort;
+        private int bufferSize = 512;
         private bool isListening = false;
 
         public bool IsListening { get => isListening; set => isListening = value; }
 
-        public MessageReceiver(string ipAddress, int port)
+        public MessageReceiver(string ipAddress, int port, int bufferSize = 512)
         {
+            this.bufferSize = bufferSize;
+
             bool isValidAddr = IPAddress.TryParse(ipAddress, out mcastAddress);
             if (isValidAddr)
             {
@@ -51,7 +54,6 @@ namespace GameNetwork
 
                 mcastSocket.Bind(localEP);
 
-
                 // Define a MulticastOption object specifying the multicast group 
                 // address and the local IPAddress.
                 // The multicast group address is the same as the address used by the server.
@@ -61,7 +63,7 @@ namespace GameNetwork
                                             SocketOptionName.AddMembership,
                                             mcastOption);
 
-                byte[] bytes = new byte[120];
+                byte[] bytes = new byte[bufferSize];
                 int receivedBytes = 0;
                 EndPoint groupEP = new IPEndPoint(mcastAddress, mcastPort);
                 EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
