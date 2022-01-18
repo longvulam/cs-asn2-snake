@@ -31,10 +31,14 @@ public class WaitingLobby : MonoBehaviour
 
     public void LoadPlayers()
     {
+        UnityMainThreadDispatcher.Instance().Enqueue(() => DisplayText());
+    }
 
+    public void DisplayText ()
+    {
         for(int i = 0; i < 5; i++)
         {
-            string playerName = "DummyTest";
+            string playerName = "Testing";
             player.text += string.Format("Player {0}: {1}\n", i, playerName);
         }
     }
