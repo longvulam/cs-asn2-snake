@@ -1,5 +1,7 @@
 using GameNetwork;
 using GameNetwork.Models;
+using Newtonsoft.Json;
+using System;
 using UnityEngine;
 
 public class NetworkSender : MonoBehaviour
@@ -11,30 +13,37 @@ public class NetworkSender : MonoBehaviour
     private void Start()
     {
         sender = new MessageSender(NetworkController.IpAddress, NetworkController.Port);
-        playerId = WaitingLobby.PlayerGuid.ToString();
+        Guid id = WaitingLobby.PlayerGuid;
+        playerId = id == Guid.Empty ? Guid.NewGuid().ToString() : id.ToString();
+        //InvokeRepeating("SendState", 0, 1);
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W) && (_direction != Direction.Down))
-        {
-            _direction = Direction.Up;
-        }
-        else if (Input.GetKeyDown(KeyCode.S) && (_direction != Direction.Up))
-        {
-            _direction = Direction.Down;
-        }
-        else if (Input.GetKeyDown(KeyCode.A) && (_direction != Direction.Right))
-        {
-            _direction = Direction.Left;
-        }
-        else if (Input.GetKeyDown(KeyCode.D) && (_direction != Direction.Left))
-        {
-            _direction = Direction.Right;
-        }
+        //if (Input.GetKeyDown(KeyCode.W) && (_direction != Direction.Down))
+        //{
+        //    _direction = Direction.Up;
+        //}
+        //else if (Input.GetKeyDown(KeyCode.S) && (_direction != Direction.Up))
+        //{
+        //    _direction = Direction.Down;
+        //}
+        //else if (Input.GetKeyDown(KeyCode.A) && (_direction != Direction.Right))
+        //{
+        //    _direction = Direction.Left;
+        //}
+        //else if (Input.GetKeyDown(KeyCode.D) && (_direction != Direction.Left))
+        //{
+        //    _direction = Direction.Right;
+        //}
     }
 
     private void FixedUpdate()
+    {
+        //SendState();
+    }
+
+    private void SendState()
     {
         try
         {
@@ -42,13 +51,14 @@ public class NetworkSender : MonoBehaviour
             BroadcastMessage message = new BroadcastMessage
             {
                 dest = BroadcastMessageDestination.Server,
-                body = JsonUtility.ToJson(player),
+                body = JsonConvert.SerializeObject(player),
             };
 
-            string jsonMsg = JsonUtility.ToJson(message);
+            string jsonMsg = JsonConvert.SerializeObject(message);
+            Debug.Log("Sendind: " + jsonMsg);
             sender.SendMessage(jsonMsg);
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError(e);
         }

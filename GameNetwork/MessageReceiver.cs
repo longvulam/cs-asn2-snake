@@ -24,7 +24,7 @@ namespace GameNetwork
 
         public bool IsListening { get => isListening; set => isListening = value; }
 
-        public MessageReceiver(string ipAddress, int port, int bufferSize = 512)
+        public MessageReceiver(string ipAddress, int port, int bufferSize = 1024)
         {
             this.bufferSize = bufferSize;
 

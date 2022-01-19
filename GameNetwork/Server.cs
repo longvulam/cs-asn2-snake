@@ -34,12 +34,17 @@ namespace GameNetwork
 
         private async void OnSend()
         {
-            int IntervalTime = 1000;
+            int GameSpeed = 200;
             while (true)
             {
-                await Task.Delay(IntervalTime);
+                await Task.Delay(GameSpeed);
                 try
                 {
+                    GameState gameState = gameStateHandler.getGameState();
+                    if (gameState.isRunnning)
+                    {
+                        gameStateHandler.movePlayers();
+                    }
                     BroadcastState();
                 }
                 catch (Exception e)
@@ -52,7 +57,7 @@ namespace GameNetwork
         private void BroadcastState()
         {
             GameState gameState = gameStateHandler.getGameState();
-            
+
             var body = JsonConvert.SerializeObject(gameState);
             var messsage = new BroadcastMessage
             {
@@ -62,7 +67,7 @@ namespace GameNetwork
             string json = JsonConvert.SerializeObject(messsage);
             string jsonPretty = JsonConvert.SerializeObject(messsage, Formatting.Indented);
 
-            Console.WriteLine("Current state: {0}" , jsonPretty);
+            Console.WriteLine("Current state: {0}", jsonPretty);
             sender.SendMessage(json);
         }
 
@@ -75,13 +80,11 @@ namespace GameNetwork
                 bool isToServer = message.dest == BroadcastMessageDestination.Server;
                 if (isToServer == false) return;
 
-                if(message.body == Constants.StartGameCode)
+                if (message.body == Constants.StartGameCode)
                 {
                     gameStateHandler.startGame();
                     return;
                 }
-
-                //Console.WriteLine($"Received: {otherPlayerJson}");
 
                 // Parse json into PlayerState obj
                 var playerState = JsonConvert.DeserializeObject<PlayerState>(message.body);

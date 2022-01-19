@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GameNetwork.Models;
 using System.Collections.Generic;
 
@@ -21,93 +22,105 @@ internal class GameStateHandler
         return gameState;
     }
 
-    public void updateStates(PlayerState playerState)
+    public void movePlayers()
     {
-        // Check if new or existing player id
-        bool newPlayer = true;
+        // Move all players 1 square based on direction
         foreach (PlayerState player in gameState.playerStates)
         {
-            if (player.id.Equals(playerState.id))
+            player.coordinates = insertNewCoord(player);
+            player.coordinates.RemoveAt(player.coordinates.Count - 1);
+        }
+
+        // Copy players to new arraylist
+        List<PlayerState> remainingPlayers = gameState.playerStates.ToList();
+
+        bool AteFood = false;
+        foreach (PlayerState player in gameState.playerStates)
+        {
+            if (!remainingPlayers.Contains(player)) continue;
+            Coordinate head = player.coordinates.First();
+            int playerX = head.x;
+            int playerY = head.y;
+
+            // Check if player is hitting the border
+            if (playerX == xMinBoundary || playerX == xMaxBoundary || playerY == yMinBoundary || playerY == yMaxBoundary)
             {
-                newPlayer = false;
+                remainingPlayers.Remove(player);
+                continue;
+            }
+
+            // Check if player is hitting another player
+            //bool collideWithPlayer = false;
+            //foreach (PlayerState p in gameState.playerStates)
+            //{
+            //    if (!remainingPlayers.Contains(player) || player.id == p.id) continue;
+            //    foreach (Coordinate coord in p.coordinates)
+            //    {
+            //        if (playerX == coord.x && playerY == coord.y)
+            //        {
+            //            remainingPlayers.Remove(player);
+            //            // Check if head on head collision (if yes, remove other player as well)
+            //            Coordinate first = p.coordinates.First();
+            //            if (playerX == first.x && playerY == first.y)
+            //            {
+            //                remainingPlayers.Remove(p);
+            //            }
+            //            collideWithPlayer = true;
+            //            break;
+            //        }
+            //    }
+            //    if (collideWithPlayer) break;
+            //}
+            //if (collideWithPlayer) continue;
+
+            // Check if player is hitting foodPos
+            if (playerX == gameState.foodPos.x && playerY == gameState.foodPos.y)
+            {
+                player.coordinates = insertNewCoord(player);
+                AteFood = true;
+            }
+        }
+
+        if (AteFood)
+        {
+            newFoodPos(remainingPlayers);
+        }
+
+        gameState.playerStates = remainingPlayers;
+        // Reset clean game state if 1 or less players
+        //if (gameState.playerStates.Count < 2)
+        //{
+        //    gameState = new GameState();
+        //}
+
+    }
+
+    public void updateStates(PlayerState newPlayerState)
+    {
+        // Check if new or existing player id
+        bool isNewPlayer = true;
+        foreach (PlayerState player in gameState.playerStates)
+        {
+            if (player.id.Equals(newPlayerState.id))
+            {
+                isNewPlayer = false;
                 break;
             }
         }
 
-        if (newPlayer)
+        if (isNewPlayer)
         {
             if (gameState.playerStates.Count < 4)
             {
-                gameState.addPlayerState(playerState);
+                gameState.addPlayerState(newPlayerState);
             }
         }
         else
         {
-            // Move all players 1 square based on direction
-            foreach (PlayerState player in gameState.playerStates)
+            PlayerState playerState = gameState.playerStates.FirstOrDefault(ps => ps.id == newPlayerState.id);
+            if (playerState != null && playerState.id == newPlayerState.id)
             {
-                player.coordinates = insertNewCoord(player);
-                player.coordinates.RemoveAt(player.coordinates.Count - 1);
-            }
-
-            // Copy players to new arraylist
-            List<PlayerState> remainingPlayers = new List<PlayerState>();
-            foreach (PlayerState player in gameState.playerStates)
-            {
-                remainingPlayers.Add(player);
-            }
-
-            foreach (PlayerState player in gameState.playerStates)
-            {
-                if (!remainingPlayers.Contains(player)) continue;
-                int playerX = ((Coordinate)player.coordinates[0]).x;
-                int playerY = ((Coordinate)player.coordinates[0]).y;
-
-                // Check if player is hitting the border
-                if (playerX == xMinBoundary || playerX == xMaxBoundary || playerY == yMinBoundary || playerY == yMaxBoundary)
-                {
-                    remainingPlayers.Remove(player);
-                    continue;
-                }
-
-                // Check if player is hitting another player
-                bool collideWithPlayer = false;
-                foreach (PlayerState p in gameState.playerStates)
-                {
-                    if (!remainingPlayers.Contains(player) || player.id == p.id) continue;
-                    foreach (Coordinate coord in p.coordinates)
-                    {
-                        if (playerX == coord.x && playerY == coord.y)
-                        {
-                            remainingPlayers.Remove(player);
-                            // Check if head on head collision (if yes, remove other player as well)
-                            if (playerX == ((Coordinate)p.coordinates[0]).x && playerY == ((Coordinate)p.coordinates[0]).y)
-                            {
-                                remainingPlayers.Remove(p);
-                            }
-                            collideWithPlayer = true;
-                            break;
-                        }
-                    }
-                    if (collideWithPlayer) break;
-                }
-                if (collideWithPlayer) continue;
-
-                // Check if player is hitting foodPos
-                if (playerX == gameState.foodPos.x && playerY == gameState.foodPos.y)
-                {
-                    PlayerState playerThatAte = remainingPlayers[remainingPlayers.IndexOf(player)];
-                    playerThatAte.coordinates = insertNewCoord(player);
-                }
-            }
-
-            newFoodPos(remainingPlayers);
-            gameState.setPlayerStates(remainingPlayers);
-
-            // Reset clean game state if 1 or less players
-            if (gameState.playerStates.Count < 2)
-            {
-                gameState = new GameState();
+                playerState.direction = newPlayerState.direction;
             }
         }
     }
@@ -162,6 +175,7 @@ internal class GameStateHandler
     private Coordinate nextCoord(PlayerState player)
     {
         Coordinate first = player.coordinates[0];
+
         int playerX = first.x;
         int playerY = first.y;
 
