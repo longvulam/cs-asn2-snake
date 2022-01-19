@@ -9,11 +9,9 @@ public class Snake : MonoBehaviour
     private List<Transform> _segments = new List<Transform>();
     public Transform segmentPrefab;
     public int initialSize = 4;
-    public Guid ID;
 
     private void Start()
     {
-        ID = Guid.NewGuid();
         ResetState();
     }
 

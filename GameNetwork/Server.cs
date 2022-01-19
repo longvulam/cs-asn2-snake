@@ -2,6 +2,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using GameNetwork.Models;
+
 
 namespace GameNetwork
 {
@@ -16,7 +18,7 @@ namespace GameNetwork
         public Server(string ipAddress, int port)
         {
             sender = new MessageSender(ipAddress, port);
-            receiver = new MessageReceiver(ipAddress, port);
+            receiver = new MessageReceiver(ipAddress, port, 1024);
             gameStateHandler = new GameStateHandler();
         }
 
@@ -50,7 +52,6 @@ namespace GameNetwork
         private void BroadcastState()
         {
             GameState gameState = gameStateHandler.getGameState();
-            if (gameState.isRunnning == false) return;
             
             var body = JsonConvert.SerializeObject(gameState);
             var messsage = new BroadcastMessage
@@ -59,7 +60,9 @@ namespace GameNetwork
                 body = body
             };
             string json = JsonConvert.SerializeObject(messsage);
+            string jsonPretty = JsonConvert.SerializeObject(messsage, Formatting.Indented);
 
+            Console.WriteLine("Current state: {0}" , jsonPretty);
             sender.SendMessage(json);
         }
 
@@ -72,7 +75,13 @@ namespace GameNetwork
                 bool isToServer = message.dest == BroadcastMessageDestination.Server;
                 if (isToServer == false) return;
 
-                Console.WriteLine($"Received: {otherPlayerJson}");
+                if(message.body == Constants.StartGameCode)
+                {
+                    gameStateHandler.startGame();
+                    return;
+                }
+
+                //Console.WriteLine($"Received: {otherPlayerJson}");
 
                 // Parse json into PlayerState obj
                 var playerState = JsonConvert.DeserializeObject<PlayerState>(message.body);

@@ -1,28 +1,60 @@
 ﻿using GameNetwork;
+using Newtonsoft.Json;
+using System;
 using System.Threading;
 using UnityEngine;
 
-public class NetworkController : MonoBehaviour {
+public class NetworkController : MonoBehaviour
+{
+    public static string IpAddress = "230.0.0.1";
+    public static int Port = 11000;
 
-    public Snake player;
+    MessageReceiver receiver;
 
-    private const string IpAddress = "230.0.0.1";
-    private const int Port = 11000;
-    private MessageReceiver receiver;
+    public static BroadcastMessage WrapMessage(string body)
+    {
+        return new BroadcastMessage
+        {
+            dest = BroadcastMessageDestination.Server,
+            body = body
+        };
+    }
 
-    private void Start() {
+    public static BroadcastMessage WrapMessage(PlayerState body)
+    {
+        return new BroadcastMessage
+        {
+            dest = BroadcastMessageDestination.Server,
+            body = JsonConvert.SerializeObject(body)
+        };
+    }
+
+    public static BroadcastMessage ParseMessage(string msg)
+    {
+        var message = JsonConvert.DeserializeObject<BroadcastMessage>(msg);
+        return message;
+    }
+
+    public static GameState ParseGameState(string msg)
+    {
+        var message = JsonConvert.DeserializeObject<GameState>(msg);
+        return message;
+    }
+
+    private void Start()
+    {
         receiver = new MessageReceiver(IpAddress, Port);
         receiver.OnReceivedEvent += UpdatePlayer;
 
         Thread thread = new Thread(new ThreadStart(receiver.StartListen));
         thread.Start();
-
     }
 
     private void UpdatePlayer(string commonGameState) // shared state coming from the server
     {
-        try {
-            BroadcastMessage message = JsonUtility.FromJson<BroadcastMessage>(commonGameState);
+        try
+        {
+            BroadcastMessage message = ParseMessage(commonGameState);
 
             bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
             if (isToPlayer == false) return;
@@ -32,8 +64,15 @@ public class NetworkController : MonoBehaviour {
 
             Debug.Log($"Received: {commonGameState}");
             //Debug.Log($"Message: {message.body}");
-        } catch (System.Exception e) {
+        }
+        catch (System.Exception e)
+        {
             Debug.LogError($"{e}");
         }
+    }
+
+    private void OnDestroy()
+    {
+        receiver.StopListen();
     }
 }
