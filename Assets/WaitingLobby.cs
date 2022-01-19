@@ -47,8 +47,6 @@ public class WaitingLobby : MonoBehaviour
 
     public void StartButton()
     {
-        //TODO: Connect with backend server so the scene can be loaded with all the snakes
-        //TODO: Along with the snakes the name and the score of each player must be displayed on the top
         var body = NetworkController.WrapMessage(Constants.StartGameCode);
         string json = JsonConvert.SerializeObject(body);
         sender.SendMessage(json);

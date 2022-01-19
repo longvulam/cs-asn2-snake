@@ -763,7 +763,7 @@ GameObject:
   - component: {fileID: 809115188}
   - component: {fileID: 809115187}
   m_Layer: 0
-  m_Name: GameController
+  m_Name: GameNetworkController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -781,7 +781,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c32bf45c1e4a1443afb2de23bfddbee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1398468771}
 --- !u!4 &809115188
 Transform:
   m_ObjectHideFlags: 0

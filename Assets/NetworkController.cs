@@ -52,23 +52,26 @@ public class NetworkController : MonoBehaviour
 
     private void UpdatePlayer(string commonGameState) // shared state coming from the server
     {
-        try
+        UnityMainThreadDispatcher taskDispatcher = UnityMainThreadDispatcher.Instance();
+        taskDispatcher.EnqueueAsync(() =>
         {
-            BroadcastMessage message = ParseMessage(commonGameState);
+            try
+            {
+                BroadcastMessage message = ParseMessage(commonGameState);
 
-            bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
-            if (isToPlayer == false) return;
-            //if (player.ID.ToString() != state.Id) {
+                bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
+                if (isToPlayer == false) return;
 
-            //}
+                GameState gs = ParseGameState(message.body);
 
-            Debug.Log($"Received: {commonGameState}");
-            //Debug.Log($"Message: {message.body}");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"{e}");
-        }
+                Debug.Log($"Received: {commonGameState}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"{e}");
+            }
+        });
+
     }
 
     private void OnDestroy()
