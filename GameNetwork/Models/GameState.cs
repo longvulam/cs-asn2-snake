@@ -10,11 +10,7 @@ public class GameState
     public GameState()
     {
         playerStates = new List<PlayerState>();
-    }
-
-    public void setPlayerStates(List<PlayerState> playerStates)
-    {
-        this.playerStates = playerStates;
+        isRunnning = false;
     }
 
     public void addPlayerState(PlayerState player)

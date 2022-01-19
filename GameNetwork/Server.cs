@@ -20,6 +20,7 @@ namespace GameNetwork
             sender = new MessageSender(ipAddress, port);
             receiver = new MessageReceiver(ipAddress, port, 1024);
             gameStateHandler = new GameStateHandler();
+            gameStateHandler.AddBots();
         }
 
         public void Start()
@@ -34,7 +35,7 @@ namespace GameNetwork
 
         private async void OnSend()
         {
-            int GameSpeed = 200;
+            int GameSpeed = 500;
             while (true)
             {
                 await Task.Delay(GameSpeed);
@@ -83,6 +84,13 @@ namespace GameNetwork
                 if (message.body == Constants.StartGameCode)
                 {
                     gameStateHandler.startGame();
+                    return;
+                }
+
+
+                if (message.body == Constants.EndGameCode)
+                {
+                    gameStateHandler.endGame();
                     return;
                 }
 

@@ -1,7 +1,7 @@
-using System;
-using System.Linq;
 using GameNetwork.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 internal class GameStateHandler
 {
@@ -20,6 +20,25 @@ internal class GameStateHandler
     public GameState getGameState()
     {
         return gameState;
+    }
+    
+    public void startGame()
+    {
+        // Sets spawn points in order of TL, TR, BR, BL based on player #
+        int playerNum = 1;
+        foreach (PlayerState player in gameState.playerStates)
+        {
+            player.generateInitialPos(playerNum);
+            ++playerNum;
+        }
+        // Initialized foodPos
+        newFoodPos(gameState.playerStates);
+        gameState.isRunnning = true;
+    }
+
+    public void endGame()
+    {
+        ResetGame();
     }
 
     public void movePlayers()
@@ -87,55 +106,42 @@ internal class GameStateHandler
         }
 
         gameState.playerStates = remainingPlayers;
-        // Reset clean game state if 1 or less players
-        //if (gameState.playerStates.Count < 2)
-        //{
-        //    gameState = new GameState();
-        //}
+    }
 
+    public void ResetGame()
+    {
+        if (gameState.playerStates.Count > 1) return;
+        gameState = new GameState();
+        gameState.isRunnning = false;
+        AddBots();
+    }
+
+    public void AddBots()
+    {
+        updateStates(new PlayerState("CPU1", Direction.Left));
+        updateStates(new PlayerState("CPU2", Direction.Left));
+        updateStates(new PlayerState("CPU3", Direction.Left));
     }
 
     public void updateStates(PlayerState newPlayerState)
     {
         // Check if new or existing player id
-        bool isNewPlayer = true;
-        foreach (PlayerState player in gameState.playerStates)
+        PlayerState playerState = gameState.playerStates.FirstOrDefault(ps => ps.id == newPlayerState.id);
+
+        bool isNewPlayer = playerState == null;
+        bool canAddPlayer = gameState.isRunnning == false && gameState.playerStates.Count < 4;
+        if (isNewPlayer && canAddPlayer)
         {
-            if (player.id.Equals(newPlayerState.id))
-            {
-                isNewPlayer = false;
-                break;
-            }
+            gameState.addPlayerState(newPlayerState);
+            return;
         }
 
-        if (isNewPlayer)
+        if (gameState.isRunnning == false) return;
+
+        if (isNewPlayer == false)
         {
-            if (gameState.playerStates.Count < 4)
-            {
-                gameState.addPlayerState(newPlayerState);
-            }
+            playerState.direction = newPlayerState.direction;
         }
-        else
-        {
-            PlayerState playerState = gameState.playerStates.FirstOrDefault(ps => ps.id == newPlayerState.id);
-            if (playerState != null && playerState.id == newPlayerState.id)
-            {
-                playerState.direction = newPlayerState.direction;
-            }
-        }
-    }
-    public void startGame()
-    {
-        // Sets spawn points in order of TL, TR, BR, BL based on player #
-        int playerNum = 1;
-        foreach (PlayerState player in gameState.playerStates)
-        {
-            player.generateInitialPos(playerNum);
-            ++playerNum;
-        }
-        // Initialized foodPos
-        newFoodPos(gameState.playerStates);
-        gameState.isRunnning = true;
     }
 
     private void newFoodPos(List<PlayerState> playerStates)

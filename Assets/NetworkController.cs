@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class NetworkController : MonoBehaviour
 {
@@ -14,10 +15,13 @@ public class NetworkController : MonoBehaviour
     public static int Port = 11000;
     public GameObject SegmentPrefab;
     public Color[] playerColors = { Color.cyan, Color.magenta, Color.blue, Color.green };
+    public Text WinnerText;
+    public Text CurrentPlayer;
 
     string playerId;
     Direction _direction = Direction.Right;
     Direction prevDir = Direction.Right;
+    bool firstBroadcastArrived = false;
 
     MessageSender sender;
     MessageReceiver receiver;
@@ -29,9 +33,10 @@ public class NetworkController : MonoBehaviour
         food = Instantiate(SegmentPrefab);
         food.GetComponent<SpriteRenderer>().color = Color.red;
 
-        sender = new MessageSender(NetworkController.IpAddress, NetworkController.Port);
+        sender = new MessageSender(IpAddress, Port);
         Guid id = WaitingLobby.PlayerGuid;
         playerId = id == Guid.Empty ? Guid.NewGuid().ToString() : id.ToString();
+        CurrentPlayer.text = $"Current Player: {playerId}";
 
         receiver = new MessageReceiver(IpAddress, Port, 1024);
         receiver.OnReceivedEvent += OnGameStateReceived;
@@ -67,15 +72,11 @@ public class NetworkController : MonoBehaviour
 
     private void SendState()
     {
+        if (firstBroadcastArrived == false) return;
         try
         {
             var player = new PlayerState(playerId, _direction);
-            BroadcastMessage message = new BroadcastMessage
-            {
-                dest = BroadcastMessageDestination.Server,
-                body = JsonConvert.SerializeObject(player),
-            };
-
+            BroadcastMessage message = WrapMessage(player);
             string jsonMsg = JsonConvert.SerializeObject(message);
             sender.SendMessage(jsonMsg);
         }
@@ -99,12 +100,27 @@ public class NetworkController : MonoBehaviour
                 if (isToPlayer == false) return;
 
                 GameState gs = ParseGameState(message.body);
+
+                List<PlayerState> playerStates = gs.playerStates;
+                if (playerStates.Count == 1)
+                {
+                    var winner = playerStates.First();
+                    WinnerText.text = $"Winner is: \n{winner.id}!";
+                    receiver.StopListen();
+                    return;
+                }
+
                 UpdateGUI(gs);
 
                 PlayerState ps = gs.playerStates.FirstOrDefault(st => st.id.Equals(playerId));
-                if(ps != null)
+                if (ps != null)
                 {
                     prevDir = ps.direction;
+                    if (firstBroadcastArrived == false)
+                    {
+                        _direction = ps.direction;
+                    }
+                    firstBroadcastArrived = true;
                 }
             }
             catch (Exception e)
@@ -148,6 +164,9 @@ public class NetworkController : MonoBehaviour
 
     public void BackToMenu()
     {
+        BroadcastMessage message = WrapMessage(Constants.EndGameCode);
+        string jsonMsg = JsonConvert.SerializeObject(message);
+        sender.SendMessage(jsonMsg);
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -176,8 +195,15 @@ public class NetworkController : MonoBehaviour
 
     public static BroadcastMessage ParseMessage(string msg)
     {
-        var message = JsonConvert.DeserializeObject<BroadcastMessage>(msg);
-        return message;
+        try
+        {
+            var message = JsonConvert.DeserializeObject<BroadcastMessage>(msg);
+            return message;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     public static GameState ParseGameState(string msg)

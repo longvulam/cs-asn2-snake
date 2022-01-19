@@ -8,6 +8,7 @@ using System.Threading;
 using System;
 using Newtonsoft.Json;
 using GameNetwork.Models;
+using System.Collections;
 
 public class WaitingLobby : MonoBehaviour
 {
@@ -55,16 +56,29 @@ public class WaitingLobby : MonoBehaviour
 
     public void OnMessageReceived(string newPlayersJoinedJson)
     {
+        BroadcastMessage message = NetworkController.ParseMessage(newPlayersJoinedJson);
+        if (message == null)
+        {
+            Debug.LogError(newPlayersJoinedJson);
+            return;
+        }
+
         UnityMainThreadDispatcher taskDispatcher = UnityMainThreadDispatcher.Instance();
-        Task task = taskDispatcher.EnqueueAsync(() => HandleMessageRecieved(newPlayersJoinedJson));
+        Task task = taskDispatcher.EnqueueAsync(() => HandleMessageRecieved(message));
     }
 
-    public void HandleMessageRecieved(string newPlayersJoinedJson)
+    IEnumerator ActionWrapper(Action a)
     {
-        BroadcastMessage message = NetworkController.ParseMessage(newPlayersJoinedJson);
+        a();
+        yield return null;
+    }
+
+    public void HandleMessageRecieved(BroadcastMessage message)
+    {
+
         GameState state = NetworkController.ParseGameState(message.body);
 
-        if(state.isRunnning)
+        if (state.isRunnning)
         {
             SceneManager.LoadScene("SnakeMultiplayer");
             return;

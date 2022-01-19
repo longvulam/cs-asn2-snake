@@ -23,7 +23,7 @@ public class PlayerState
                 // TL corner
                 for (int i = 0; i < 5; ++i)
                 {
-                    Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
+                    Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMaxBoundary - 1);
                     coordinates.Add(c);
                 }
                 direction = Direction.Right;
@@ -32,7 +32,7 @@ public class PlayerState
                 // TR corner
                 for (int i = 0; i < 5; ++i)
                 {
-                    Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
+                    Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMaxBoundary- 1);
                     coordinates.Add(c);
                 }
                 direction = Direction.Left;
@@ -41,7 +41,7 @@ public class PlayerState
                 // BR corner
                 for (int i = 0; i < 5; ++i)
                 {
-                    Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMaxBoundary - 1);
+                    Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
                     coordinates.Add(c);
                 }
                 direction = Direction.Left;
@@ -50,7 +50,7 @@ public class PlayerState
                 // BL corner
                 for (int i = 0; i < 5; ++i)
                 {
-                    Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMaxBoundary - 1);
+                    Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
                     coordinates.Add(c);
                 }
                 direction = Direction.Right;

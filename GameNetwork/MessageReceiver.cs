@@ -82,6 +82,7 @@ namespace GameNetwork
             catch (Exception e)
             {
                 Console.WriteLine("\n" + e.ToString());
+                OnMessageReceived("There was an error on the server.\nPlease check if the server is running");
                 throw;
             }
         }
