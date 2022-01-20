@@ -89,11 +89,12 @@ public class NetworkController : MonoBehaviour
 
     private void OnGameStateReceived(string commonGameState) // shared state coming from the server
     {
-        UnityMainThreadDispatcher taskDispatcher = UnityMainThreadDispatcher.Instance();
-        taskDispatcher.EnqueueAsync(() =>
+        try
         {
-            try
+            UnityMainThreadDispatcher taskDispatcher = UnityMainThreadDispatcher.Instance();
+            taskDispatcher.EnqueueAsync(() =>
             {
+
                 BroadcastMessage message = ParseMessage(commonGameState);
 
                 bool isToPlayer = message.dest == BroadcastMessageDestination.Player;
@@ -122,12 +123,13 @@ public class NetworkController : MonoBehaviour
                     }
                     firstBroadcastArrived = true;
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"{e}");
-            }
-        });
+
+            });
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"{e}");
+        }
     }
 
     private void UpdateGUI(GameState gs)

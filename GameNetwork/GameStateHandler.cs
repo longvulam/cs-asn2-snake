@@ -110,7 +110,6 @@ internal class GameStateHandler
 
     public void ResetGame()
     {
-        if (gameState.playerStates.Count > 1) return;
         gameState = new GameState();
         gameState.isRunnning = false;
         AddBots();
@@ -118,9 +117,9 @@ internal class GameStateHandler
 
     public void AddBots()
     {
-        updateStates(new PlayerState("CPU1", Direction.Left));
-        updateStates(new PlayerState("CPU2", Direction.Left));
-        updateStates(new PlayerState("CPU3", Direction.Left));
+        //updateStates(new PlayerState("CPU1", Direction.Left));
+        //updateStates(new PlayerState("CPU2", Direction.Left));
+        //updateStates(new PlayerState("CPU3", Direction.Left));
     }
 
     public void updateStates(PlayerState newPlayerState)
