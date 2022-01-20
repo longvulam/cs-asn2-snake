@@ -19,7 +19,9 @@ namespace GameNetwork
         {
             sender = new MessageSender(ipAddress, port);
             receiver = new MessageReceiver(ipAddress, port, 1024);
-            gameStateHandler = new GameStateHandler();
+
+            bool withBots = false;
+            gameStateHandler = new GameStateHandler(withBots);
             gameStateHandler.AddBots();
         }
 

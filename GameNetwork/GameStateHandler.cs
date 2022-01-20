@@ -6,22 +6,24 @@ using System.Linq;
 internal class GameStateHandler
 {
     private GameState gameState;
+    private bool withBots;
 
     public static int xMinBoundary = -24;
     public static int xMaxBoundary = 24;
     public static int yMinBoundary = -12;
     public static int yMaxBoundary = 12;
 
-    public GameStateHandler()
+    public GameStateHandler(bool withBots = false)
     {
         gameState = new GameState();
+        this.withBots = withBots;
     }
 
     public GameState getGameState()
     {
         return gameState;
     }
-    
+
     public void startGame()
     {
         // Sets spawn points in order of TL, TR, BR, BL based on player #
@@ -117,9 +119,11 @@ internal class GameStateHandler
 
     public void AddBots()
     {
-        //updateStates(new PlayerState("CPU1", Direction.Left));
-        //updateStates(new PlayerState("CPU2", Direction.Left));
-        //updateStates(new PlayerState("CPU3", Direction.Left));
+        if (withBots == false) return;
+
+        updateStates(new PlayerState("CPU1", Direction.Left));
+        updateStates(new PlayerState("CPU2", Direction.Left));
+        updateStates(new PlayerState("CPU3", Direction.Left));
     }
 
     public void updateStates(PlayerState newPlayerState)

@@ -98,14 +98,24 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release (
-  cd $(OutDir)
-  echo deleting Newtonsoft part
-  del Newtonsoft.Json.*
-  echo ouput to: $(OutDir)
-) ELSE (
-  echo "Debug build"
+    <PostBuildEvent>
+IF $(ConfigurationName) == Release  (
+  IF "$(TargetExt)" == ".exe" (
+    xcopy  "$(TargetDir)"  "$(ProjectDir)\..\ServerBuild" /Y /R 
+    echo copied to Release folder
+  )
+  IF "$(TargetExt)" == ".dll" (
+    echo .dll build
+  )
+    cd $(OutDir)
+    echo deleting Newtonsoft part
+    del Newtonsoft.Json.*
+    echo ouput to: $(OutDir)
 )
 </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
