@@ -5,6 +5,7 @@
 [Oo]bj/
 [Bb]in/
 /GameNetwork/packages/
+/WebsocketServer/packages/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Bb]uild/
