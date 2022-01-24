@@ -15,9 +15,15 @@ EditorBuildSettings:
     path: Assets/Scenes/WaitingLobby.unity
     guid: f9ab46521bbc435488a88bfeb41e707f
   - enabled: 1
+    path: Assets/Scenes/WebsocketWaitingLobby.unity
+    guid: a3b70e7a064786a4f9f0d369a5540167
+  - enabled: 1
     path: Assets/Scenes/Snake.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/SnakeMultiplayer.unity
     guid: 6fdee633cdc2df44abb2bb3ed65cbe0d
+  - enabled: 1
+    path: Assets/Scenes/WebsocketSnakeMultiplayer.unity
+    guid: c4e65065c1a52064fb23d4542d138494
   m_configObjects: {}

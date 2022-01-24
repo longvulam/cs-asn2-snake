@@ -1,4 +1,4 @@
-using WebsocketServer.Models;
+using WebsocketClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +9,6 @@ namespace WebsocketServer
     {
         private GameState gameState;
         private bool withBots;
-
-        public static int xMinBoundary = -24;
-        public static int xMaxBoundary = 24;
-        public static int yMinBoundary = -12;
-        public static int yMaxBoundary = 12;
 
         public GameStateHandler(bool withBots = false)
         {
@@ -30,6 +25,7 @@ namespace WebsocketServer
         {
             // Sets spawn points in order of TL, TR, BR, BL based on player #
             int playerNum = 1;
+            AddBots();
             foreach (PlayerState player in gameState.playerStates)
             {
                 player.generateInitialPos(playerNum);
@@ -44,6 +40,10 @@ namespace WebsocketServer
         {
             bool canAddPlayer = gameState.isRunnning == false && gameState.playerStates.Count < 4;
             if (canAddPlayer == false) return;
+
+            PlayerState playerState = gameState.playerStates.FirstOrDefault(ps => ps.id == playerId);
+            bool isUnknownPlayer = playerState == null;
+            if (isUnknownPlayer == false) return;
 
             gameState.addPlayerState(new PlayerState(playerId));
         }
@@ -83,7 +83,10 @@ namespace WebsocketServer
                 int playerY = head.y;
 
                 // Check if player is hitting the border
-                if (playerX == xMinBoundary || playerX == xMaxBoundary || playerY == yMinBoundary || playerY == yMaxBoundary)
+                if (playerX == Coordinate.xMinBoundary || 
+                    playerX == Coordinate.xMaxBoundary || 
+                    playerY == Coordinate.yMinBoundary || 
+                    playerY == Coordinate.yMaxBoundary)
                 {
                     remainingPlayers.Remove(player);
                     continue;
@@ -133,7 +136,6 @@ namespace WebsocketServer
         {
             gameState = new GameState();
             gameState.isRunnning = false;
-            AddBots();
         }
 
         public void AddBots()
@@ -168,8 +170,8 @@ namespace WebsocketServer
             do
             {
                 conflict = false;
-                x = rnd.Next(xMinBoundary + 1, xMaxBoundary);
-                y = rnd.Next(yMinBoundary + 1, yMaxBoundary);
+                x = rnd.Next(Coordinate.xMinBoundary + 1, Coordinate.xMaxBoundary);
+                y = rnd.Next(Coordinate.yMinBoundary + 1, Coordinate.yMaxBoundary);
                 foreach (PlayerState player in playerStates)
                 {
                     foreach (Coordinate coord in player.coordinates)

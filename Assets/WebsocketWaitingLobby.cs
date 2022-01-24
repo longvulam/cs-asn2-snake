@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Threading;
 using System;
 using Newtonsoft.Json;
-using GameNetwork;
-using GameNetwork.Models;
-using System.Collections;
+using WebsocketClient;
+using WebsocketClient.Models;
 
-public class WaitingLobby : MonoBehaviour
+public class WebsocketWaitingLobby : MonoBehaviour
 {
     public static Guid PlayerGuid;
     Text player;
@@ -20,21 +18,20 @@ public class WaitingLobby : MonoBehaviour
     private void Start()
     {
         player = GameObject.Find("PlayerName").GetComponent<Text>();
-        sender = new MessageSender(NetworkController.IpAddress, NetworkController.Port);
-        SendJoinGameMessage();
-
-        receiver = new MessageReceiver(NetworkController.IpAddress, NetworkController.Port, 1024);
+        PlayerGuid = Guid.NewGuid();
+        string playerId = PlayerGuid.ToString();
+        sender = new MessageSender(WebsocketNetworkController.IpAddress, WebsocketNetworkController.Port, playerId);
+        receiver = new MessageReceiver(WebsocketNetworkController.IpAddress, WebsocketNetworkController.Port, playerId);
         receiver.OnReceivedEvent += OnMessageReceived;
+        receiver.StartListen();
 
-        Thread thread = new Thread(new ThreadStart(receiver.StartListen));
-        thread.Start();
+        SendJoinGameMessage();
     }
 
     private void SendJoinGameMessage()
     {
-        PlayerGuid = Guid.NewGuid();
-        var playerState = new PlayerState(PlayerGuid.ToString(), Direction.Up);
-        var body = NetworkController.WrapMessage(playerState);
+        var playerState = new PlayerState(PlayerGuid.ToString(), Direction.None);
+        var body = WebsocketNetworkController.WrapMessage(playerState);
         string json = JsonConvert.SerializeObject(body);
         sender.SendMessage(json);
     }
@@ -48,7 +45,7 @@ public class WaitingLobby : MonoBehaviour
 
     public void StartButton()
     {
-        var body = NetworkController.WrapMessage(Constants.StartGameCode);
+        var body = WebsocketNetworkController.WrapMessage(Constants.StartGameCode);
         string json = JsonConvert.SerializeObject(body);
         sender.SendMessage(json);
         Debug.Log("OnStarted");
@@ -56,7 +53,8 @@ public class WaitingLobby : MonoBehaviour
 
     public void OnMessageReceived(string newPlayersJoinedJson)
     {
-        BroadcastMessage message = NetworkController.ParseMessage(newPlayersJoinedJson);
+        Debug.Log($"New state:\n{newPlayersJoinedJson}");
+        BroadcastMessage message = WebsocketNetworkController.ParseMessage(newPlayersJoinedJson);
         if (message == null)
         {
             Debug.LogError(newPlayersJoinedJson);
@@ -67,20 +65,14 @@ public class WaitingLobby : MonoBehaviour
         Task task = taskDispatcher.EnqueueAsync(() => HandleMessageRecieved(message));
     }
 
-    IEnumerator ActionWrapper(Action a)
-    {
-        a();
-        yield return null;
-    }
-
     public void HandleMessageRecieved(BroadcastMessage message)
     {
 
-        GameState state = NetworkController.ParseGameState(message.body);
+        GameState state = WebsocketNetworkController.ParseGameState(message.body);
 
         if (state.isRunnning)
         {
-            SceneManager.LoadScene("SnakeMultiplayer");
+            SceneManager.LoadScene("WebsocketSnakeMultiplayer");
             return;
         }
 
@@ -99,5 +91,6 @@ public class WaitingLobby : MonoBehaviour
     private void OnDestroy()
     {
         receiver.StopListen();
+        sender.CloseSocket();
     }
 }

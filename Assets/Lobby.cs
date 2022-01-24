@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 
@@ -20,8 +18,8 @@ public class Lobby : MonoBehaviour
 
     public void MultiPlayer()
     {
-        //TODO: load the multiplayer waiting lobby
-        SceneManager.LoadScene("WaitingLobby");
+        //SceneManager.LoadScene("WaitingLobby");
+        SceneManager.LoadScene("WebsocketWaitingLobby"); 
         Debug.Log("Game Started");
     }
 

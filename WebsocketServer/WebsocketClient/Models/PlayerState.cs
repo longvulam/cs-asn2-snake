@@ -1,12 +1,17 @@
 using System.Collections.Generic;
 
-namespace WebsocketServer.Models
+namespace WebsocketClient.Models
 {
     public class PlayerState
     {
         public string id;
         public Direction direction;
         public List<Coordinate> coordinates = new List<Coordinate>();
+
+        public PlayerState()
+        {
+
+        }
 
         public PlayerState(string id) : this(id, Direction.None)
         {
@@ -27,7 +32,7 @@ namespace WebsocketServer.Models
                     // TL corner
                     for (int i = 0; i < 5; ++i)
                     {
-                        Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMaxBoundary - 1);
+                        Coordinate c = new Coordinate(Coordinate.xMinBoundary + coordinateCounter - i, Coordinate.yMaxBoundary - 1);
                         coordinates.Add(c);
                     }
                     direction = Direction.Right;
@@ -36,7 +41,7 @@ namespace WebsocketServer.Models
                     // TR corner
                     for (int i = 0; i < 5; ++i)
                     {
-                        Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMaxBoundary - 1);
+                        Coordinate c = new Coordinate(Coordinate.xMaxBoundary - coordinateCounter - i, Coordinate.yMaxBoundary - 1);
                         coordinates.Add(c);
                     }
                     direction = Direction.Left;
@@ -45,7 +50,7 @@ namespace WebsocketServer.Models
                     // BR corner
                     for (int i = 0; i < 5; ++i)
                     {
-                        Coordinate c = new Coordinate(GameStateHandler.xMaxBoundary - coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
+                        Coordinate c = new Coordinate(Coordinate.xMaxBoundary - coordinateCounter - i, Coordinate.yMinBoundary + 1);
                         coordinates.Add(c);
                     }
                     direction = Direction.Left;
@@ -54,7 +59,7 @@ namespace WebsocketServer.Models
                     // BL corner
                     for (int i = 0; i < 5; ++i)
                     {
-                        Coordinate c = new Coordinate(GameStateHandler.xMinBoundary + coordinateCounter - i, GameStateHandler.yMinBoundary + 1);
+                        Coordinate c = new Coordinate(Coordinate.xMinBoundary + coordinateCounter - i, Coordinate.yMinBoundary + 1);
                         coordinates.Add(c);
                     }
                     direction = Direction.Right;

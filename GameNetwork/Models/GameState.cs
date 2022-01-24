@@ -1,25 +1,28 @@
 using System.Collections.Generic;
 
-public class GameState
+namespace GameNetwork.Models
 {
-    public List<PlayerState> playerStates; // [{x, y}, ...]
-    public Coordinate foodPos;
-
-    public bool isRunnning { get; set; }
-
-    public GameState()
+    public class GameState
     {
-        playerStates = new List<PlayerState>();
-        isRunnning = false;
-    }
+        public List<PlayerState> playerStates; // [{x, y}, ...]
+        public Coordinate foodPos;
 
-    public void addPlayerState(PlayerState player)
-    {
-        playerStates.Add(player);
-    }
+        public bool isRunnning { get; set; }
 
-    public void setFoodPos(Coordinate foodPos)
-    {
-        this.foodPos = foodPos;
+        public GameState()
+        {
+            playerStates = new List<PlayerState>();
+            isRunnning = false;
+        }
+
+        public void addPlayerState(PlayerState player)
+        {
+            playerStates.Add(player);
+        }
+
+        public void setFoodPos(Coordinate foodPos)
+        {
+            this.foodPos = foodPos;
+        }
     }
 }

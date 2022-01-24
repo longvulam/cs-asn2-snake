@@ -1,21 +1,20 @@
-﻿using GameNetwork;
-using GameNetwork.Models;
+﻿using WebsocketClient;
+using WebsocketClient.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class NetworkController : MonoBehaviour
+public class WebsocketNetworkController : MonoBehaviour
 {
-    public static string IpAddress = "230.0.0.1";
-    public static int Port = 11000;
+    public static string IpAddress = "localhost";
+    public static int Port = 59365;
 
     public GameObject SegmentPrefab;
-    public Color[] playerColors = { Color.cyan, Color.magenta, Color.blue, Color.green };
+    public Color[] playerColors = { Color.white, Color.magenta, Color.blue, Color.green };
     public Text WinnerText;
     public Text CurrentPlayer;
 
@@ -34,16 +33,15 @@ public class NetworkController : MonoBehaviour
         food = Instantiate(SegmentPrefab);
         food.GetComponent<SpriteRenderer>().color = Color.red;
 
-        sender = new MessageSender(IpAddress, Port);
-        Guid id = WaitingLobby.PlayerGuid;
+        Guid id = WebsocketWaitingLobby.PlayerGuid;
         playerId = id == Guid.Empty ? Guid.NewGuid().ToString() : id.ToString();
         CurrentPlayer.text = $"Current Player: {playerId}";
 
-        receiver = new MessageReceiver(IpAddress, Port, 1024);
+        sender = new MessageSender(IpAddress, Port, playerId);
+        receiver = new MessageReceiver(IpAddress, Port, playerId);
         receiver.OnReceivedEvent += OnGameStateReceived;
 
-        Thread thread = new Thread(new ThreadStart(receiver.StartListen));
-        thread.Start();
+        receiver.StartListen();
     }
 
     private void Update()
@@ -90,6 +88,7 @@ public class NetworkController : MonoBehaviour
 
     private void OnGameStateReceived(string commonGameState) // shared state coming from the server
     {
+        Debug.Log($"Game state:\n{commonGameState}");
         try
         {
             UnityMainThreadDispatcher taskDispatcher = UnityMainThreadDispatcher.Instance();
@@ -175,6 +174,7 @@ public class NetworkController : MonoBehaviour
 
     private void OnDestroy()
     {
+        sender.CloseSocket();
         receiver.StopListen();
     }
 

@@ -1,4 +1,4 @@
-﻿namespace WebsocketServer.Models
+﻿namespace WebsocketClient.Models
 {
     public enum Direction
     {

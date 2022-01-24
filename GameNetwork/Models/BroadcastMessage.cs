@@ -1,4 +1,4 @@
-﻿namespace GameNetwork
+﻿namespace GameNetwork.Models
 {
     public class BroadcastMessage
     {

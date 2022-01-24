@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace WebsocketServer.Models
+namespace WebsocketClient.Models
 {
     public class GameState
     {

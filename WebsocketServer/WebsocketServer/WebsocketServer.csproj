@@ -37,7 +37,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\Assets\dlls\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -47,9 +47,11 @@
     <Reference Include="Microsoft.WebSockets, Version=0.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WebSockets.0.2.3.1\lib\net45\Microsoft.WebSockets.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -61,7 +63,6 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
@@ -74,14 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameStateHandler.cs" />
-    <Compile Include="MessageReceiver.cs" />
-    <Compile Include="MessageSender.cs" />
-    <Compile Include="Models\BroadcastMessage.cs" />
-    <Compile Include="Models\Constants.cs" />
-    <Compile Include="Models\Coordinate.cs" />
-    <Compile Include="Models\Direction.cs" />
-    <Compile Include="Models\GameState.cs" />
-    <Compile Include="Models\PlayerState.cs" />
     <Compile Include="ws.ashx.cs">
       <DependentUpon>ws.ashx</DependentUpon>
     </Compile>
@@ -100,6 +93,12 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="ws.ashx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebsocketClient\WebsocketClient.csproj">
+      <Project>{091570c1-3711-49fb-b037-3e4c639ddebd}</Project>
+      <Name>WebsocketClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -140,19 +139,7 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>
-IF $(ConfigurationName) == Release  (
-  IF "$(TargetExt)" == ".exe" (
-    xcopy  "$(TargetDir)"  "$(ProjectDir)\..\ServerBuild" /Y /R 
-    echo copied to Release folder
-  )
-  IF "$(TargetExt)" == ".dll" (
-    echo .dll build
-  )
-    cd $(OutDir)
-    echo deleting Newtonsoft part
-    del Newtonsoft.Json.*
-    echo ouput to: $(OutDir)
-)</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

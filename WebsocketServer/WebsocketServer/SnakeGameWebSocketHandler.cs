@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Web.WebSockets;
 using Newtonsoft.Json;
-using WebsocketServer.Models;
+using WebsocketClient.Models;
 //https://itq.eu/net-4-5-websocket-client-without-a-browser/
 
 
@@ -14,19 +11,24 @@ namespace WebsocketServer
     public class SnakeGameWebSocketHandler : WebSocketHandler
     {
         private static WebSocketCollection clients = new WebSocketCollection();
-
+        private static GameStateHandler gameLogic = new GameStateHandler();
+        private static bool serverIsRunning = false;
+        private static bool withBots = false;
+        private static int GameSpeed = 500;
         private string playerId;
-        private GameStateHandler gameLogic;
-        private int GameSpeed = 500;
 
-        public SnakeGameWebSocketHandler()
+        internal SnakeGameWebSocketHandler()
         {
-            gameLogic = new GameStateHandler();
-            var broadcastTask = Task.Run(BroadcastGameState);
+            if (serverIsRunning == false)
+            {
+                gameLogic = new GameStateHandler(withBots);
+                var broadcastTask = Task.Run(() => BroadcastGameState());
+            }
         }
 
         private async void BroadcastGameState()
         {
+            serverIsRunning = true;
             while (true)
             {
                 await Task.Delay(GameSpeed);
@@ -44,14 +46,19 @@ namespace WebsocketServer
                         body = JsonConvert.SerializeObject(gameState)
                     };
 
-                    string json = JsonConvert.SerializeObject(messsage);
                     string jsonPretty = JsonConvert.SerializeObject(messsage, Formatting.Indented);
                     Console.WriteLine("Current state: {0}", jsonPretty);
+
+                    string json = JsonConvert.SerializeObject(messsage);
+                    clients.Broadcast(json);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
+
+                if (serverIsRunning == false)
+                    break;
             }
         }
 
@@ -60,6 +67,7 @@ namespace WebsocketServer
             // client <- hub -> client <- hub -> server
             playerId = WebSocketContext.QueryString["playerId"];
             clients.Add(this);
+
             gameLogic.addPlayerToGame(playerId);
         }
 
@@ -95,9 +103,8 @@ namespace WebsocketServer
         }
 
         public override void OnClose()
-        {
+        { 
             clients.Remove(this);
-            gameLogic.removePlayerFromGame(playerId);
         }
     }
 }
